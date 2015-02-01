@@ -4,8 +4,8 @@ class Brewery < ActiveRecord::Base
   include RatingAverage
   validates :name, presence: true
   validates :year, numericality: {greater_than_or_equal_to: 1042,
-                                  less_than_or_equal_to: 2015,
                                   only_integer: true}
+  validate :est_in_future
 
   def to_s
     self.name
@@ -19,4 +19,11 @@ class Brewery < ActiveRecord::Base
     self.year = 2015
     puts "changed year to #{year}"
   end
+
+  def est_in_future
+    if(Date.today.year < year)
+      errors.add(:year,"; Establishment year cannot be in the future")
+    end
+  end
+
 end
