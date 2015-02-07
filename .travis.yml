@@ -1,10 +1,15 @@
 language: ruby
-
 rvm:
- - 2.2.0
-
+- 2.2.0
 script:
- - bundle exec rake db:migrate --trace
- - RAILS_ENV=test bundle exec rake db:migrate --trace
- - bundle exec rake db:test:prepare
- - bundle exec rspec -fd spec/
+- bundle exec rake db:migrate --trace
+- RAILS_ENV=test bundle exec rake db:migrate --trace
+- bundle exec rake db:test:prepare
+- bundle exec rspec -fd spec/
+deploy:
+  provider: heroku
+  api_key:
+    secure: K/+Kdklm/+41rlJdxN0V79Gq1IZjjxIyWH/qJQfzaMKcdEVKiRcDOCDr2Txood+CKoDvt6G4nuf4/R8TBxtyCKdr0ob93DWNKYZ8fUMrJL7JsyPx0uSsVbkiDv1bmZL++8t+YZ++LlS7vroF4hc93+xRzF9IKtrWOdqianaxITQ=
+  app: jojokine-wadror
+  on:
+    repo: jojokine/wadror
