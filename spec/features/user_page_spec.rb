@@ -39,6 +39,4 @@ describe "User page" do
     expect(user.ratings.count).to eq(1)
   end
 
-
-
 end

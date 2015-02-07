@@ -1,6 +1,5 @@
 require 'rails_helper'
 
-
 describe "a new beer" do
   before :each do
     @breweries = ["Koff", "Karjala", "Schlenkerla"]
