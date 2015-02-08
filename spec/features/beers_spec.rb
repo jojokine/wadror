@@ -1,16 +1,17 @@
 require 'rails_helper'
 
 describe "a new beer" do
+  let!(:user) { FactoryGirl.create :user }
   before :each do
     @breweries = ["Koff", "Karjala", "Schlenkerla"]
     year = 1896
     @breweries.each do |brewery_name|
       FactoryGirl.create(:brewery, name: brewery_name, year: year += 1)
+      sign_in username:"Pekka", password:"Foobar1"
     end
   end
 
   it "can be added with correct information " do
-
     visit new_beer_path
     fill_in('Name', with:'Testiolut')
     click_button "Create Beer"

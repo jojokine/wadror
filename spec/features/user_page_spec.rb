@@ -3,9 +3,10 @@ require 'rails_helper'
 describe "User page" do
 
   let!(:brewery) { FactoryGirl.create :brewery, name:"Hoegaarden" }
+  let!(:brewery2) { FactoryGirl.create :brewery, name:"Other" }
 
-  let!(:beer) { FactoryGirl.create :beer, name:"Hoegaarden", brewery:brewery }
-  let!(:beer2) { FactoryGirl.create :beer, name:"Other beer", brewery:brewery }
+  let!(:beer) { FactoryGirl.create :beer, name:"Hoegaarden", brewery:brewery, style:"witbier" }
+  let!(:beer2) { FactoryGirl.create :beer, name:"Other beer", brewery:brewery2, style:"other" }
 
   let!(:user) { FactoryGirl.create :user }
   let!(:user2) { FactoryGirl.create :user, username:"Testuser2" }
@@ -38,5 +39,16 @@ describe "User page" do
     expect(page).not_to have_content 'Hoegaarden'
     expect(user.ratings.count).to eq(1)
   end
+
+  it "should have users favourite style" do
+    visit user_path(user)
+    expect(page).to have_content 'Favorite style: other'
+  end
+
+  it "should have users favourite brewery" do
+    visit user_path(user)
+    expect(page).to have_content 'Favorite brewery: Other'
+  end
+
 
 end
