@@ -34,6 +34,8 @@ gem 'bcrypt', '~> 3.1.7'
 
 gem 'rspec-its'
 
+gem 'httparty'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -61,6 +63,7 @@ group :development, :test do
 end
 
 group :test do
+  gem 'webmock'
   gem 'simplecov', require: false
   gem 'factory_girl_rails'
   gem 'capybara'
