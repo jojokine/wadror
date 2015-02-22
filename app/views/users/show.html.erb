@@ -57,7 +57,8 @@
   </tbody>
 </table>
 
-<% if current_user.admin %>
+
+<% if (not current_user.nil?) && current_user.admin %>
     <% if @user.disable %>
         <%= link_to "Enable account", toggle_disable_user_path(@user.id), method: :post, class: "btn btn-danger" %>
     <% else %>
