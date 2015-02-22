@@ -1,42 +1,71 @@
-<p id="notice"><%= notice %></p>
-
 <h2>
   <%= @user.username %>
+  <% if @user.disable %>
+      <p>account frozen</p>
+  <% end %>
 </h2>
 
 <% if @user.ratings.empty? %>
     <p>has not yet rated any beers</p>
 <% else %>
     <p>
-      Has made <%= pluralize(@user.ratings.count, 'rating') %>, average <%= @user.average_rating %>
+      Has made <%= pluralize(@user.ratings.count, 'rating') %>, average <%= round(@user.average_rating) %>
     </p>
-    <p>
-      Favorite style: <%= @user.favorite_style %>
-    </p>
-    <p>
-      Favorite brewery: <%= @user.favorite_brewery.name %>
-    </p>
+
+    <p>Favorite brewery: <%=@user.favorite_brewery.name %> </p>
+    <p>Favorite beer: <%=@user.favorite_beer %> </p>
+    <p>Favorite style: <%=@user.favorite_style %> </p>
 <% end %>
 
 <% if @user.beer_clubs.any? %>
-    member of
-    <% @user.beer_clubs.each do |club| %>
-        <%= link_to club.name, club %>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th>Member of:</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @user.beer_clubs.each do |club| %>
+          <tr>
+            <td><%= link_to club.name, club %></td>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+<% end %>
+
+
+<table class="table table-hover">
+  <thead>
+  <tr>
+    <th>Beer</th>
+    <th>Score</th>
+    <th>Delete?</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @user.ratings.each do |rating| %>
+      <tr>
+        <td><%= link_to rating.beer.name, rating.beer %></td>
+        <td><%= rating.score %></td>
+        <td><% if @user == current_user %>
+              <%= link_to 'delete', rating, method: :delete, data: { confirm: 'Are you sure?' } %>
+          <% end %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<% if current_user.admin %>
+    <% if @user.disable %>
+        <%= link_to "Enable account", toggle_disable_user_path(@user.id), method: :post, class: "btn btn-danger" %>
+    <% else %>
+        <%= link_to "Freeze account", toggle_disable_user_path(@user.id), method: :post, class: "btn btn-danger" %>
     <% end %>
 <% end %>
 
-<ul>
-  <% @user.ratings.each do |rating| %>
-      <li>
-        <%= rating %>
-        <% if @user == current_user %>
-            <%= link_to 'delete', rating, method: :delete, data: { confirm: 'Are you sure?' } %>
-        <% end %>
-      </li>
-  <% end %>
-</ul>
-
 <% if @user == current_user %>
-    <%= link_to 'Change password', edit_user_path(@user) %>
-    <%= link_to 'Delete account', @user, method: :delete, data: { confirm: 'Are you sure?' } %></
+    <%= link_to 'Change password', edit_user_path(@user), class:"btn btn-primary" %>
+    <%= link_to 'Delete account', @user, method: :delete, data: { confirm: 'Are you sure?' }, class:"btn btn-danger" %>
 <% end %>

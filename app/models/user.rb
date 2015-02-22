@@ -3,64 +3,70 @@ class User < ActiveRecord::Base
 
   has_secure_password
 
-  validates :username, uniqueness: true,
-            length: { minimum: 3 , maximum: 15}
-
-  validates :password, format: { :with => /(?=.*[A-Z])(?=.*[0-9]).{4,}/}
-
   has_many :ratings, dependent: :destroy
   has_many :beers, through: :ratings
-  has_many :memberships
+  has_many :memberships, dependent: :destroy
   has_many :beer_clubs, through: :memberships
 
+  validates :username, uniqueness: true,
+                       length: { in: 3..15 }
+
+  validates :password, length: { minimum: 4 }
+
+  validates :password, format: { with: /\d.*[A-Z]|[A-Z].*\d/,  message: "has to contain one number and one upper case letter" }
 
   def favorite_beer
     return nil if ratings.empty?
     ratings.order(score: :desc).limit(1).first.beer
   end
 
-  def favorite_style
-    return nil if ratings.empty?
-    favorite = ''
-    ratings.each do |rating|
-      if style_average(rating.beer.style) > style_average(favorite)
-        favorite = rating.beer.style
-      end
-    end
-    favorite
-  end
-
   def favorite_brewery
     return nil if ratings.empty?
-    favorite = nil
-    ratings.each do |rating|
-      if brewery_average(rating.beer.brewery) > brewery_average(favorite)
-        favorite = rating.beer.brewery
-      end
+    brewery_ratings = rated_breweries.inject([]) do |ratings, brewery|
+      ratings << {
+        name: brewery,
+        rating: rating_of_brewery(brewery) }
     end
-    favorite
+
+    brewery_ratings.sort_by { |brewery| brewery[:rating] }.reverse.first[:name]
   end
 
-  def brewery_average(brewery)
-    return 0 if brewery.nil?
-    breweryratings = []
-    ratings.each do |rating|
-      if rating.beer.brewery.eql? brewery
-        breweryratings.append rating.score
-      end
+  def favorite_style
+    return nil if ratings.empty?
+    style_ratings = rated_styles.inject([]) do |ratings, style|
+      ratings << {
+        name: style,
+        rating: rating_of_style(style) }
     end
-    breweryratings.sum / breweryratings.size.to_f
+
+    style_ratings.sort_by { |style| style[:rating] }.reverse.first[:name]
   end
 
-  def style_average(style)
-    return 0 if style.empty?
-    styleratings = []
-    ratings.each do |rating|
-      if rating.beer.style.eql? style
-        styleratings.append rating.score
-      end
+  def rated_breweries
+    ratings.map{ |r| r.beer.brewery }.uniq
+  end
+
+  def rated_styles
+    ratings.map{ |r| r.beer.style }.uniq
+  end
+
+  def rating_of_brewery(brewery)
+    ratings_of_brewery = ratings.select do |r|
+      r.beer.brewery == brewery
     end
-    styleratings.sum / styleratings.size.to_f
+    ratings_of_brewery.map(&:score).sum / ratings_of_brewery.count
+  end
+
+  def rating_of_style(style)
+    ratings_of_style = ratings.select do |r|
+      r.beer.style == style
+    end
+    ratings_of_style.map(&:score).sum / ratings_of_style.count
+  end
+
+  def self.top(n)
+    sorted_by_rating_in_desc_order = User.all.sort_by{ |b| -(b.ratings.count || 0) }
+    return sorted_by_rating_in_desc_order.first(n)
   end
 
 end

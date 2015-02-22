@@ -1,3 +1,4 @@
+
 source 'https://rubygems.org'
 
 group :development, :test do
@@ -44,6 +45,11 @@ gem 'httparty'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+
+gem 'bootstrap-sass'
+group :development do
+  gem 'rails_layout'
+end
 
 group :development, :test do
   gem "better_errors"

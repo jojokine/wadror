@@ -41,14 +41,12 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
-      if current_user == @user
-        if user_params[:username].nil? and @user == current_user and @user.update(user_params)
-          format.html { redirect_to @user, notice: 'User was successfully updated.' }
-          format.json { render :show, status: :ok, location: @user }
-        else
-          format.html { render :edit }
-          format.json { render json: @user.errors, status: :unprocessable_entity }
-        end
+      if user_params[:username].nil? and @user == current_user and @user.update(user_params)
+        format.html { redirect_to @user, notice: 'User was successfully updated.' }
+        format.json { render :show, status: :ok, location: @user }
+      else
+        format.html { render :edit }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -56,22 +54,38 @@ class UsersController < ApplicationController
   # DELETE /users/1
   # DELETE /users/1.json
   def destroy
-    @user.destroy if current_user == @user
-    session.destroy
+    if current_user == @user
+      @user.destroy
+      session[:user_id] = nil
+    end
     respond_to do |format|
       format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
-  private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_user
-    @user = User.find(params[:id])
+  def disable
+    User.disable = true
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def user_params
-    params.require(:user).permit(:username, :password, :password_confirmation)
+  def toggle_disable
+    user = User.find(params[:id])
+    user.update_attribute :disable, (not user.disable)
+    #brewery.update_attribute :active, (not brewery.active)
+
+    new_status = user.disable? ? "frozen" : "active"
+
+    redirect_to :back, notice:"user status changed to #{new_status}"
   end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_user
+      @user = User.find(params[:id])
+    end
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def user_params
+      params.require(:user).permit(:username, :password, :password_confirmation)
+    end
 end
