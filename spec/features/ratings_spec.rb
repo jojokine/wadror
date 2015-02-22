@@ -63,6 +63,6 @@ describe "Ratings" do
     }.to change{Rating.count}.from(3).to(2)
 
     visit user_path(user.id)
-    expect(page).not_to have_content deleted_rating
+    expect(page).not_to have_content 'Karhu'
   end
 end
